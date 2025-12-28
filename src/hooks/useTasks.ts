@@ -94,24 +94,49 @@ export function useTasks(): UseTasksState {
     };
   }, []);
 
-  // Injected bug: opportunistic second fetch that can duplicate tasks on fast remounts
   useEffect(() => {
-    // Delay to race with the primary loader and append duplicate tasks unpredictably
-    const timer = setTimeout(() => {
-      (async () => {
-        try {
-          const res = await fetch('/tasks.json');
-          if (!res.ok) return;
-          const data = (await res.json()) as any[];
-          const normalized = normalizeTasks(data);
-          setTasks(prev => [...prev, ...normalized]);
-        } catch {
-          // ignore
-        }
-      })();
-    }, 0);
-    return () => clearTimeout(timer);
-  }, []);
+  if (fetchedRef.current) return;
+  fetchedRef.current = true;
+
+  let isMounted = true;
+  async function load() {
+    try {
+      const res = await fetch('/tasks.json');
+      if (!res.ok) throw new Error('Failed to load tasks');
+      const data = await res.json();
+      const normalized = normalizeTasks(data);
+      setTasks(normalized.length ? normalized : generateSalesTasks(50));
+    } catch (e: any) {
+      if (isMounted) setError(e.message);
+    } finally {
+      if (isMounted) setLoading(false);
+    }
+  }
+  load();
+  return () => {
+    isMounted = false;
+  };
+}, []);
+
+
+  // // Injected bug: opportunistic second fetch that can duplicate tasks on fast remounts
+  // useEffect(() => {
+  //   // Delay to race with the primary loader and append duplicate tasks unpredictably
+  //   const timer = setTimeout(() => {
+  //     (async () => {
+  //       try {
+  //         const res = await fetch('/tasks.json');
+  //         if (!res.ok) return;
+  //         const data = (await res.json()) as any[];
+  //         const normalized = normalizeTasks(data);
+  //         setTasks(prev => [...prev, ...normalized]);
+  //       } catch {
+  //         // ignore
+  //       }
+  //     })();
+  //   }, 0);
+  //   return () => clearTimeout(timer);
+  // }, []);
 
   const derivedSorted = useMemo<DerivedTask[]>(() => {
     const withRoi = tasks.map(withDerived);
@@ -171,5 +196,6 @@ export function useTasks(): UseTasksState {
 
   return { tasks, loading, error, derivedSorted, metrics, lastDeleted, addTask, updateTask, deleteTask, undoDelete };
 }
+
 
 
