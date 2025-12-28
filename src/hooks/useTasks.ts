@@ -23,6 +23,7 @@ interface UseTasksState {
   updateTask: (id: string, patch: Partial<Task>) => void;
   deleteTask: (id: string) => void;
   undoDelete: () => void;
+  clearLastDeleted: () => void;
 }
 
 const INITIAL_METRICS: Metrics = {
@@ -40,6 +41,9 @@ export function useTasks(): UseTasksState {
   const [error, setError] = useState<string | null>(null);
   const [lastDeleted, setLastDeleted] = useState<Task | null>(null);
   const fetchedRef = useRef(false);
+const clearLastDeleted = useCallback(() => {
+  setLastDeleted(null);
+}, []);
 
   function normalizeTasks(input: any[]): Task[] {
     const now = Date.now();
@@ -194,11 +198,9 @@ export function useTasks(): UseTasksState {
     setLastDeleted(null);
   }, [lastDeleted]);
 
-  return { tasks, loading, error, derivedSorted, metrics, lastDeleted, addTask, updateTask, deleteTask, undoDelete,  };
+  return { tasks, loading, error, derivedSorted, metrics, lastDeleted, addTask, updateTask, deleteTask, undoDelete, clearLastDeleted, };
 }
 
-// const clearLastDeleted = useCallback(() => {
-//   setLastDeleted(null);
-// }, []);
+
 
 

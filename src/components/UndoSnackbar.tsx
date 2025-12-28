@@ -8,14 +8,35 @@ interface Props {
 
 export default function UndoSnackbar({ open, onClose, onUndo }: Props) {
   return (
+    // <Snackbar
+    //   open={open}
+    //   onClose={onClose}
+    //   autoHideDuration={4000}
+    //   message="Task deleted"
+    //   action={<Button color="secondary" size="small" onClick={onUndo}>Undo</Button>}
+    //   anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+    // />
     <Snackbar
-      open={open}
-      onClose={onClose}
-      autoHideDuration={4000}
-      message="Task deleted"
-      action={<Button color="secondary" size="small" onClick={onUndo}>Undo</Button>}
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-    />
+  open={open}
+  autoHideDuration={4000}
+  onClose={(_, reason) => {
+    // Ignore clickaway, close on timeout or manual close
+    if (reason === 'clickaway') return;
+    onClose();
+  }}
+  message="Task deleted"
+  action={
+    <Button
+      color="secondary"
+      size="small"
+      onClick={onUndo}
+    >
+      Undo
+    </Button>
+  }
+  anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+/>
+
   );
 }
 
