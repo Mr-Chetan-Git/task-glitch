@@ -5,10 +5,25 @@ import { DerivedTask, Task } from '@/types';
 //   return revenue / (timeTaken as number);
 // }
 export function computeROI(revenue: number, timeTaken: number): number | null {
-  if (!Number.isFinite(revenue) || !Number.isFinite(timeTaken)) return null;
-  if (timeTaken <= 0) return null;
-  return revenue / timeTaken;
+  
+  if (!Number.isFinite(revenue) || !Number.isFinite(timeTaken)) {
+    return null;
+  }
+
+  if (timeTaken <= 0) {
+    return null;
+  }
+
+  const roi = revenue / timeTaken;
+
+  return Number.isFinite(roi) ? roi : null;
 }
+
+// export function computeROI(revenue: number, timeTaken: number): number | null {
+//   if (!Number.isFinite(revenue) || !Number.isFinite(timeTaken)) return null;
+//   if (timeTaken <= 0) return null;
+//   return revenue / timeTaken;
+// }
 
 export function computePriorityWeight(priority: Task['priority']): 3 | 2 | 1 {
   switch (priority) {
